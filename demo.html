@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>身份证阅读器Web版 -  Power by 明珠玮玉</title>
+    <script type="text/javascript">
+        var conn;
+        window.onload = function () {
+
+
+            if (window["WebSocket"]) {
+                conn = new WebSocket("ws://127.0.0.1:9000");
+                conn.onclose = function (evt) {
+                    var item = document.createElement("div");
+                    item.innerHTML = "<b>服务未启用</b>";
+                    document.getElementById("log").appendChild(item);
+
+                };
+                conn.onmessage = function (evt) {
+                    var messages = evt.data.split('\n');
+                    for (var i = 0; i < messages.length; i++) {
+                        showInfo(JSON.parse(messages[i]));
+                    }
+                };
+            } else {
+                var item = document.createElement("div");
+                item.innerHTML = "<b>您的浏览器不支持WebSockets.</b>";
+                document.getElementById("log").appendChild(item);
+
+            }
+        };
+
+        function readIDCard() {
+            if (!conn) {
+                return false;
+            }
+            conn.send('--ReadCard');
+            return false;
+        };
+
+        function clearInfo() {
+            document.getElementById("text_name").value = "";
+            document.getElementById("text_sex").value = "";
+            document.getElementById("text_nation").value = "";
+            document.getElementById("text_birthday").value = "";
+            document.getElementById("text_address").value = "";
+            document.getElementById("text_idNum").value = "";
+            document.getElementById("text_dept").value = "";
+            document.getElementById("text_effDate").value = "";
+            document.getElementById("text_expDate").value = "";
+            document.getElementById("text_result").value = "";
+            document.getElementById("PhotoID").src = "";
+        }
+
+        function showInfo(ret) {
+            console.log(ret);
+            var item = document.createElement("div");
+            if (ret.ret != 1) {
+                var item = document.createElement("div");
+                item.innerHTML = "<b>"+ret.msg+"</b>";
+                document.getElementById("log").appendChild(item);
+            } else if(ret.msg =='读卡成功') {
+                clearInfo();
+                document.getElementById("text_name").value = ret.data.name;
+                document.getElementById("text_sex").value = ret.data.gender;
+                document.getElementById("text_nation").value = ret.data.folk;
+                document.getElementById("text_birthday").value = ret.data.birthDay;
+                document.getElementById("text_address").value = ret.data.address;
+                document.getElementById("text_idNum").value = ret.data.code;
+                document.getElementById("text_dept").value = ret.data.agency;
+                document.getElementById("text_effDate").value = ret.data.expireEnd;
+                document.getElementById("text_expDate").value = ret.data.expireStart;
+                document.getElementById("text_result").value = JSON.stringify(ret);
+                document.getElementById("PhotoID").src = ret.data.photo;
+            } else if(ret.msg =='视频捕获成功') {
+                document.getElementById("VideoCapture").src = ret.data;
+            }
+        }
+        function camera() {
+            
+        }
+    </script>
+    <style type="text/css">
+        html {
+            overflow: hidden;
+        }
+
+        body {
+            overflow: hidden;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            background: gray;
+        }
+
+        #log {
+            background: white;
+            margin: 0;
+            padding: 0.5em 0.5em 0.5em 0.5em;
+            position: absolute;
+            top: 0.5em;
+            left: 0.5em;
+            right: 0.5em;
+            bottom: 3em;
+            overflow: auto;
+        }
+
+        #form {
+            padding: 0 0.5em 0 0.5em;
+            margin: 0;
+            position: absolute;
+            bottom: 1em;
+            left: 0px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+    </style>
+</head>
+<body>
+<div id="log">
+    <p align="center">
+        <a><strong>身份证阅读器Web版</strong></a>
+    </p>
+    <table width="750px" border="0" cellspacing="1" cellpadding="2" align="center" bgcolor="#FFFFFF">
+        <tr>
+            <td colspan="4" align="center">
+                <input class="butt" type="button" name="startReadCard" value="读二代证" onClick="readIDCard();">
+                <input class="butt" type="button" name="camera" value="视频捕获" onClick="camera();">
+                <input class="butt" type="button" name="Clear" value="清空信息" onClick="clearInfo();">
+            </td>
+        </tr>
+
+        <tr>
+            <td class="title">姓名：</td>
+            <td>
+                <input type="text" name="text_name" id="text_name" value="" readonly>
+            </td>
+            <td rowspan="9" align="center"><img id="PhotoID" name="Photo" style="width:96px; height:118px;"/></td>
+            <td rowspan="9" align="center"><img id="VideoCapture" name="VideoCapture" style="width:192px; height:236px;"/></td>
+
+        </tr>
+        <tr>
+            <td class="title">性别：</td>
+            <td colspan="3">
+                <input type="text" name="text_sex" id="text_sex" value="" readonly>
+            </td>
+        </tr>
+        <tr>
+            <td class="title">民族：</td>
+            <td colspan="3">
+                <input type="text" name="text_nation" id="text_nation" value="" readonly>
+            </td>
+        </tr>
+        <tr>
+            <td class="title">出生：</td>
+            <td colspan="3">
+                <input type="text" name="text_birthday" id="text_birthday" value="" readonly>
+            </td>
+        </tr>
+        <tr>
+            <td class="title">地址：</td>
+            <td colspan="3">
+                <input type="text" name="text_address" id="text_address" value="" readonly>
+            </td>
+        </tr>
+        <tr>
+            <td class="title">身份证号：</td>
+            <td colspan="3">
+                <input type="text" name="text_idNum" id="text_idNum" value="" readonly>
+            </td>
+        </tr>
+        <tr>
+            <td class="title">签发机关：</td>
+            <td colspan="3">
+                <input type="text" name="text_dept" id="text_dept" value="" readonly>
+            </td>
+        </tr>
+        <tr>
+            <td class="title">开始期限：</td>
+            <td colspan="3">
+                <input type="text" name="text_effDate" id="text_effDate" value="" readonly>
+            </td>
+        </tr>
+        <tr>
+            <td class="title">结束期限：</td>
+            <td colspan="3">
+                <input type="text" name="text_expDate" id="text_expDate" value="" readonly>
+            </td>
+        </tr>
+        <tr>
+            <td class="title">返回数据：</td>
+            <td colspan="3">
+                <textarea id="text_result" rows="15" name="text_result" id="text_result"
+                          style="color:#FF0000;width:94.3%;" cols="70" readonly></textarea>
+            </td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>
