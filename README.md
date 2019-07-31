@@ -9,4 +9,4 @@
  打开本地摄像头,提供web服务,基于WebSocket协议
  
 # 快照 
- ![Image text](https://raw.githubusercontent.com/zjw939057120/website-monitoring/master/snapshot.png)
+ ![Image text](https://raw.githubusercontent.com/zjw939057120/idcardReader-camera/master/snapshot.png)
